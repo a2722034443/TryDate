@@ -20,7 +20,6 @@ class RegisterSerializer(serializers.Serializer):
     gender = serializers.ChoiceField(choices=User.Gender.choices)
     gender_preference = serializers.ChoiceField(choices=User.GenderPreference.choices)
     birth_year = serializers.IntegerField(min_value=1990, max_value=2010, required=False)
-    password = serializers.CharField(min_length=6, write_only=True)
 
     def validate(self, data):
         expire_time = timezone.now() - timedelta(minutes=settings.VERIFICATION_CODE_EXPIRE_MINUTES)
@@ -38,15 +37,14 @@ class RegisterSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         vc = validated_data.pop('_vc')
-        code = validated_data.pop('code')
+        validated_data.pop('code')
         code_type = validated_data.pop('code_type')
         target = validated_data.pop('target')
-        password = validated_data.pop('password')
 
         if code_type == 'email':
-            user = User.objects.create_user(email=target, password=password, **validated_data)
+            user = User.objects.create_user(email=target, password=None, **validated_data)
         else:
-            user = User.objects.create_user(phone=target, password=password, **validated_data)
+            user = User.objects.create_user(phone=target, password=None, **validated_data)
 
         vc.is_used = True
         vc.save()

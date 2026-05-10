@@ -46,7 +46,7 @@
   }
 
   .page-container {
-    @apply min-h-dvh pb-24;
+    @apply min-h-dvh pb-8;
   }
 }
 

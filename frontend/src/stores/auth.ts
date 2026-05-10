@@ -18,7 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const token = ref(localStorage.getItem('access_token'))
 
-  const isLoggedIn = computed(() => !!token.value && !!user.value)
+  const isLoggedIn = computed(() => !!token.value)
   const needsQuestionnaire = computed(() =>
     user.value ? user.value.questionnaire_completion < 70 : false
   )

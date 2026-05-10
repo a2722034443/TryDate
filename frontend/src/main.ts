@@ -5,6 +5,15 @@ import App from './App.vue'
 import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 import './assets/main.css'
+import dayjs from 'dayjs'
+import weekOfYear from 'dayjs/plugin/weekOfYear'
+import isoWeek from 'dayjs/plugin/isoWeek'
+import isToday from 'dayjs/plugin/isToday'
+import isYesterday from 'dayjs/plugin/isYesterday'
+dayjs.extend(weekOfYear)
+dayjs.extend(isoWeek)
+dayjs.extend(isToday)
+dayjs.extend(isYesterday)
 
 const app = createApp(App)
 app.use(createPinia())

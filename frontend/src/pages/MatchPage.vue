@@ -52,7 +52,7 @@
     </div>
 
     <!-- Match card -->
-    <div v-else-if="matchData" class="animate-slide-up">
+    <div v-else-if="matchData" class="animate-slide-up pb-4">
 
       <!-- Status badge -->
       <div class="flex justify-center mb-4">
@@ -161,11 +161,17 @@
         ⏰ 截止时间：{{ deadline }}
       </p>
     </div>
+
+    <!-- Fallback: matched=true but data still loading -->
+    <div v-else class="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
+      <div class="w-16 h-16 rounded-full bg-gradient-soft flex items-center justify-center text-3xl animate-float">💫</div>
+      <p class="text-text-sub font-semibold text-sm">正在加载心动数据…</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { matchApi } from '@/api'
 import dayjs from 'dayjs'
@@ -177,7 +183,7 @@ const matchData = ref<any>(null)
 const responding = ref(false)
 
 const needsQuestionnaire = computed(() => auth.needsQuestionnaire)
-const weekLabel = computed(() => `第 ${dayjs().week()} 周 · ${dayjs().format('YYYY年M月')}`)
+const weekLabel = computed(() => `第 ${dayjs().isoWeek()} 周 · ${dayjs().format('YYYY年M月')}`)
 const deadline = computed(() => matchData.value ? dayjs(matchData.value.action_deadline).format('M月D日 HH:mm') : '')
 const statusColor = computed(() => {
   if (!matchData.value) return 'bg-gray-400'
@@ -205,11 +211,24 @@ async function respond(action: 'liked' | 'passed') {
   } catch {} finally { responding.value = false }
 }
 
-onMounted(async () => {
+const matchLoaded = ref(false)
+
+async function loadMatch() {
+  if (matchLoaded.value) return
+  if (!auth.user) return
+  matchLoaded.value = true
+
+  if (auth.needsQuestionnaire) {
+    loading.value = false
+    return
+  }
   try {
     const res = await matchApi.current()
     matched.value = res.data.matched
     if (res.data.matched) matchData.value = res.data.match
-  } catch {} finally { loading.value = false }
-})
+  } catch { /* error toast handled by interceptor */ } finally { loading.value = false }
+}
+
+onMounted(loadMatch)
+watch(() => auth.user, loadMatch)
 </script>

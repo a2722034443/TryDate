@@ -80,8 +80,10 @@ import { useRouter } from 'vue-router'
 import { ArrowLeftIcon } from 'lucide-vue-next'
 import { toast } from 'vue3-toastify'
 import { questionnaireApi } from '@/api'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const auth = useAuthStore()
 const currentStep = ref(0)
 const completed = ref(false)
 const completion = ref(0)
@@ -102,6 +104,9 @@ const questions = [
 
 function selectAnswer(value: string) {
   answers[questions[currentStep.value].key] = value
+  if (currentStep.value < questions.length - 1) {
+    setTimeout(() => { currentStep.value++ }, 350)
+  }
 }
 
 function next() {
@@ -120,6 +125,7 @@ async function submit() {
   try {
     const res = await questionnaireApi.patch(answers)
     completion.value = res.data.completion_rate
+    await auth.fetchProfile()
     completed.value = true
   } catch { toast.error('提交失败，请重试') }
 }

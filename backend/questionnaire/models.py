@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 
 
-TOTAL_QUESTIONS = 27
+TOTAL_QUESTIONS = 10
 
 
 class Questionnaire(models.Model):
